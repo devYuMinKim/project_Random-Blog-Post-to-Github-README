@@ -42,14 +42,13 @@ jobs:
 
       - name: Configure Git
         run: |
+          cd devYuMinKim
           git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
+          git config user.email "gimyumin40@gmail.com"
 
       - name: Update main branch and push the changes
         run: |
-          cd devYuMinKim
           git add README.md
           git diff --cached --quiet || git commit -m "Updated README.md with recent blog posts"
+          git remote set-url origin "https://x-access-token:${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.BLOG_POSTS }}

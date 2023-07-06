@@ -60,7 +60,7 @@ def main():
     output_file = "output.json"
 
     output_data = get_random_blog_posts(url, css_selector)
-    sample_output_data = random.sample(output_data, min(len(output_data), 3))
+    sample_output_data = random.sample(output_data, min(len(output_data), 3)) # 기본 3개
     save_output_to_json(sample_output_data, output_file)
 
 if __name__ == "__main__":

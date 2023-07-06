@@ -5,17 +5,23 @@ import os
 import random
 from dotenv import load_dotenv
 
+# URL이 절대 경로인지 확인하는 함수
 def is_absolute(url):
     return bool(requests.utils.urlparse(url).netloc)
 
+# 블로그에서 포스트 목록을 가져오는 함수
 def get_random_blog_posts(url, css_selector):
     output_data = []
 
     try:
+        # 블로그의 HTML 코드 가져오기
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
+
+        # 포스트 목록 가져오기
         articles = soup.select(css_selector + ' > a')
 
+        # 각 포스트의 제목과 링크 저장하기
         for article in articles:
             title = article.text.strip()
             link = article["href"]
@@ -34,6 +40,7 @@ def get_random_blog_posts(url, css_selector):
 
     return output_data
 
+# 출력 데이터를 JSON 파일에 저장하는 함수
 def save_output_to_json(sample_output_data, output_file):
     try:
         with open(output_file, "w") as json_file:

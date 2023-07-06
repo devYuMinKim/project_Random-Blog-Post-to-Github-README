@@ -21,7 +21,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.BLOG_POSTS }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: |
@@ -36,20 +36,13 @@ jobs:
           python blog_posts_scraper.py
           python update_readme.py
 
-      # - name: Clone other GitHub repository
-      #   run: |
-      #     git clone https://github.com/devYuMinKim/devYuMinKim.git
-      #     cp README.md devYuMinKim/README.md
-
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "<>"
+          git config --global user.email ">"
 
       - name: Update main branch and push the changes
         run: |
           git add README.md
           git diff --cached --quiet || git commit -m "Updated README.md with recent blog posts"
-          git remote remove origin #이전 옵션 삭제
-          git remote add origin "https://x-access-token:${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"
           git push origin main

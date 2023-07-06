@@ -21,6 +21,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ secrets.BLOG_POSTS }}
 
       - name: Install dependencies
         run: |

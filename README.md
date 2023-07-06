@@ -1,4 +1,4 @@
-# Random Blog Post to Github README 🚀
+# RandomBlogSnippets 🚀
 
 Get random blog posts from your personal blog and update your Github README.md with them.
 

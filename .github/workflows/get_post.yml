@@ -49,5 +49,6 @@ jobs:
         run: |
           git add README.md
           git diff --cached --quiet || git commit -m "Updated README.md with recent blog posts"
-          git remote set-url origin "https://x-access-token:${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"
-          git push
+          git remote remove origin #이전 옵션 삭제
+          git remote add origin "https://x-access-token:${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"
+          git push origin main

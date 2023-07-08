@@ -19,10 +19,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
         with:
-          repository: devYuMinKim/devYuMinKim # FIXME: 수정 요함
+          repository: devYuMinKim/project_RandomBlogSnippets # FIXME: 수정 요함
           ref: main
           fetch-depth: 0
           token: ${{ secrets.BLOG_POSTS }} # TODO: 설정 요함
+
+      - name: Add another repository
+        run: |
+          git clone https://${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git
 
       - name: Install dependencies
         run: |
@@ -34,6 +38,7 @@ jobs:
           URL: "https://devyuminkim-devlog.vercel.app" # FIXME: 수정 요함
           CSS_SELECTOR: "#__next > div:nth-child(2) > div > div.notion-frame > div > main > div.notion-page-content > article > div.notion-collection.notion-block-52c3f72df427430ca4768e53c36a61c6 > div:nth-child(2) > div > div" # FIXME: 수정 요함
         run: |
+          cd devYuMinKim
           python blog_posts_scraper.py
           python update_readme.py
 
@@ -44,8 +49,9 @@ jobs:
 
       - name: Update main branch and push the changes
         run: |
+          cd devYuMinKim
           git add README.md
           git diff --cached --quiet || git commit -m "Updated README.md with recent blog posts"
           git remote remove origin
-          git remote add origin "https://github-actions[bot]:${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"  # TODO: 설정 요함
+          git remote add origin "https://${{ secrets.BLOG_POSTS }}@github.com/devYuMinKim/devYuMinKim.git"  # TODO: 설정 요함
           git push origin main

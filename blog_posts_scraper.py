@@ -46,14 +46,15 @@ def get_random_blog_posts(url, css_selector):
 
 # 출력 데이터를 JSON 파일에 저장하는 함수
 def save_output_to_json(sample_output_data, output_file):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(current_dir, output_file)
     try:
-        with open(output_file, "w") as json_file:
+        with open(output_path, "w") as json_file:
             json.dump(sample_output_data, json_file)
-        print(f"{output_file}에 성공적으로 저장되었습니다. 작업 디렉토리: {os.getcwd()}")
+        print(f"{output_path}에 성공적으로 저장되었습니다.")
     except Exception as e:
-        print(f"{output_file}에 저장하는 동안 오류가 발생했습니다: {e}\n")
-    
-    return output_file
+        print(f"{output_path}에 저장하는 동안 오류가 발생했습니다:e\n")
+    return output_path
 
 def main():
     load_dotenv()

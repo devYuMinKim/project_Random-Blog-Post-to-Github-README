@@ -19,22 +19,26 @@ def get_random_blog_posts(url, css_selector):
         soup = BeautifulSoup(response.content, "html.parser")
 
         # 포스트 목록 가져오기
-        articles = soup.select(css_selector + ' > a')
+        articles = soup.select(css_selector)
 
-        # 각 포스트의 제목과 링크 저장하기
+        # 각 포스트의 a 태그들의 링크를 가져옵니다.
         for article in articles:
-            title = article.text.strip()
-            link = article["href"]
+            links = article.find_all("a")
 
-            if not is_absolute(link):
-                link = url.rstrip("/") + link.lstrip(".")
+            # 각 링크의 제목과 링크 저장하기
+            for link in links:
+                title = link.text.strip()
+                href = link["href"]
 
-            post_data = {
-                "title": title,
-                "link": link,
-            }
+                if not is_absolute(href):
+                    href = url.rstrip("/") + href.lstrip(".")
 
-            output_data.append(post_data)
+                post_data = {
+                    "title": title,
+                    "link": href,
+                }
+
+                output_data.append(post_data)
     except Exception as e:
         print(f"Error while scraping {url}: {e}")
 

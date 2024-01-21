@@ -1,20 +1,30 @@
 import json
+from pathlib import Path
 
-# README.md 파일을 업데이트하는 함수
+def format_post(post):
+    title = post["title"]
+    url = post["url"]
+    return f"[{title}]({url})  "
+
 def update_readme(posts):
-    with open("README_template.md", "r") as template:
-        template_content = template.read()
+    template_path = Path("README_template.md")
+    readme_path = Path("README.md")
+    try:
+        template_content = template_path.read_text()
+        formatted_posts = '\n'.join(format_post(post) for post in posts)
+        with readme_path.open("w") as readme_file:
+            readme_file.write(template_content.format(posts=formatted_posts))
+        print("README.md 업데이트 성공!")
+    except Exception as e:
+        print(f"README.md 업데이트 도중 오류가 발생했습니다 확인하세요: {e}")
 
-    # 포스트 목록을 기반으로 새 섹션 생성
-    new_section = ''.join([f"- [{post['title']}]({post['link']})\n" for post in posts])
-    readme_content = template_content.replace("{blog_posts}", new_section)
+def main():
+    output_file = "output.json"
 
-    # 변경된 내용으로 README.md 파일 작성
-    with open("README.md", "w") as readme:
-        readme.write(readme_content)
-    print(f"README.md 업데이트 성공!")
+    with open(output_file) as json_file:
+        data = json.load(json_file)
+
+    update_readme(data)
 
 if __name__ == "__main__":
-    with open("output.json", "r") as json_file:
-        sample_output_data = json.load(json_file)
-    update_readme(sample_output_data)
+    main()

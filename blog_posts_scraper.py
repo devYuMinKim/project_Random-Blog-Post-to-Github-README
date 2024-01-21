@@ -3,70 +3,79 @@ from bs4 import BeautifulSoup
 import json
 import os
 import random
-from dotenv import load_dotenv
+from pathlib import Path
 
-# URL이 절대 경로인지 확인하는 함수
 def is_absolute(url):
     return bool(requests.utils.urlparse(url).netloc)
 
-# 블로그에서 포스트 목록을 가져오는 함수
 def get_random_blog_posts(url, css_selector):
     output_data = []
 
     try:
-        # 블로그의 HTML 코드 가져오기
         response = requests.get(url)
+        response.raise_for_status()  
         soup = BeautifulSoup(response.content, "html.parser")
-
-        # 포스트 목록 가져오기
         articles = soup.select(css_selector)
+        all_links = []
 
-        # 각 포스트의 a 태그들의 링크를 가져옵니다.
         for article in articles:
             links = article.find_all("a")
+            all_links.extend(links)
 
-            # 각 링크의 제목과 링크 저장하기
-            for link in links:
-                title = link.text.strip()
-                href = link["href"]
+        selected_links = random.sample(all_links, min(3, len(all_links)))
 
+        for link in selected_links:
+            # Get the title
+            title_element = link.select_one("div.notion-collection-card-body > div:nth-child(1) > span > span > span > span")
+            title = title_element.text.strip() if title_element else ""
+
+            # Get the summary
+            summary_element = link.select_one("div.notion-collection-card-body > div:nth-child(2)")
+            summary = summary_element.text.strip() if summary_element else ""
+
+            # Get the date
+            date_element = link.select_one("div.notion-collection-card-body > div:nth-child(3)")
+            
+            if date_element and '202' in date_element.text:
+                index_202 = date_element.text.index('202')
+                date_text= date_element.text[:index_202]
+            
+                href=link["href"]
+                
                 if not is_absolute(href):
-                    href = url.rstrip("/") + href.lstrip(".")
-
-                post_data = {
-                    "title": title,
-                    "link": href,
+                    href=url.rstrip("/") + href.lstrip(".")
+                
+                post_data={
+                    "title":title,
+                    "summary":summary,
+                    "date":date_text,
+                    "url":href,
                 }
-
+                
                 output_data.append(post_data)
-    except Exception as e:
-        print(f"Error while scraping {url}: {e}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Error while scraping {url}: {e}")
 
     return output_data
 
-# 출력 데이터를 JSON 파일에 저장하는 함수
 def save_output_to_json(sample_output_data, output_file):
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    output_path = os.path.join(current_dir, output_file)
+    output_path = Path(output_file)
     try:
-        with open(output_path, "w") as json_file:
+        with output_path.open("w") as json_file:
             json.dump(sample_output_data, json_file)
         print(f"{output_path}에 성공적으로 저장되었습니다.")
     except Exception as e:
-        print(f"{output_path}에 저장하는 동안 오류가 발생했습니다:e\n")
-    return output_path
+        print(f"{output_path}에 저장하는 동안 오류가 발생했습니다: {e}")
+
+    return str(output_path)
 
 def main():
-    load_dotenv()
-    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-    load_dotenv(dotenv_path)
     url = os.getenv("URL")
     css_selector = os.getenv("CSS_SELECTOR")
     output_file = "output.json"
 
     output_data = get_random_blog_posts(url, css_selector)
-    print(f"Output Data: {output_data}")
-    sample_output_data = random.sample(output_data, min(len(output_data), 3)) # 기본 3개
+    sample_output_data = random.sample(output_data, min(len(output_data), 3))
     save_output_to_json(sample_output_data, output_file)
 
 if __name__ == "__main__":
